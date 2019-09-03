@@ -1,0 +1,1 @@
+this is the readme file in the public folder, node read this folder from the root of the folder so the path will be /something/readme
