@@ -1,3 +1,4 @@
+const config = require("config");
 const express = require("express");
 const app = express();
 const Joi = require("joi");
@@ -5,6 +6,7 @@ const logger = require("./logger/logger");
 const morgan = require("morgan");
 // the path in post man http://localhost:5000/api/myMovies/whatever
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true })); // this is a built meddle ware function used mostly in forms req, its the same like json but instead the key value in the form will be stored as req.body. so when i want to create post req using the urlencoded.
 // with extended = true i can pass array or complex object
 app.use(express.static("public")); // note the static folder are served from the root of the site.
@@ -13,7 +15,6 @@ app.use(express.static("public")); // note the static folder are served from the
 // its better practice to put the custom middle ware function up together
 
 // the third party middle ware , i go to expressjs.com resources their a olt of middle ware functions helmet and morgan are useful.
-app.use(morgan("tiny"));
 
 app.use((req, res, next) => {
   console.log("authentication...");
@@ -21,7 +22,8 @@ app.use((req, res, next) => {
   //the next method is a reference to the next method in the req process pipeline
 });
 app.use(logger);
-const port = (process.env.PORT = 5000 || 3000); // this is variable env the port will be set the production mood
+const port = (process.env.PORT = 5000 || 3000); // this is  an env variable  the port will be set the production mood
+// app.listen(port);
 
 const myMovies = [
   {
@@ -75,7 +77,6 @@ app.delete("/api/myMovies/:id", (req, res) => {
   myMovies.splice(index, 1);
   res.send(movie);
 });
-app.listen(port);
 
 // the validation function
 function validate(movie) {
@@ -88,8 +89,29 @@ function validate(movie) {
   // one of this prop is truthy. i am interesting in the error object.
   // if error so i want the details property which include the message property which i want to return it in the bad request.
 }
-// the middle ware function is a function determinate the req res cycle, the rout handler is a middleware function also the express.json() because its read the req object the parse req.body the return it.
+// the middle ware function is a function determinate the req res cycle, the rout handler is a middleware function also the express.json() because its read the req object the parse req.body and return it.
 // the req process pipeline is the way between the req and res object all the functions in middle are
 //middle ware function.
 
 // i can create my middle ware function, note that app.use is a method used to install a middle ware function in the req process pipeline
+
+// its very important i set the  environments in node js to determine which features should be enable or disable.
+// in node the process obj have the env obj property which has the NODE_ENV property by setting this property i determine which env is running, if i did not set it it will be set to undefined
+// console.log(`process.env.NODE_env is ${process.env.NODE_env}`); // this give === undefined
+// console.log(app.get("env")); // with the get method in the app obj i get the env, if i didn't set it it will give development by default.
+
+// i want morgan just run in the development env so:
+// if (app.get("env") === "development") {
+//   app.use(morgan("tiny"));
+//   console.log("morgan enable "); // if i set the NODE_ENV to production with the export command morgan will not log
+// }
+// app.listen(port, () => `listening in port ${port}`);
+
+// configuration and env: i should write different configuration for each env and over writing according to the env that is running.
+// there is rc npm for  managing config but also there is config which is a good package, i will go with config
+// config its and obj with get method so we just set the env and use the dot notation to access its props
+console.log(config.get("host.mail"));
+app.get("env");
+
+// sometime i want to set passwords for thr database or some other password. i donut store this type of info in the config files direct i set some variables env for those passwords. to that i create a file in the config folder with this name always:custom-environment-variable.json there i store the password property in the variable env
+console.log(config.get("mail.password"));
