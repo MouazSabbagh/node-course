@@ -4,6 +4,8 @@ const app = express();
 const Joi = require("joi");
 const logger = require("./logger/logger");
 const morgan = require("morgan");
+const startUpDebug = require("debug")("app:startUp");
+const dbDebug = require("debug")("app:db");
 // the path in post man http://localhost:5000/api/myMovies/whatever
 app.use(express.json());
 
@@ -17,12 +19,12 @@ app.use(express.static("public")); // note the static folder are served from the
 // the third party middle ware , i go to expressjs.com resources their a olt of middle ware functions helmet and morgan are useful.
 
 app.use((req, res, next) => {
-  console.log("authentication...");
+  startUpDebug("authentication...");
   next();
   //the next method is a reference to the next method in the req process pipeline
 });
 app.use(logger);
-const port = (process.env.PORT = 5000 || 3000); // this is  an env variable  the port will be set the production mood
+const port = process.env.PORT || 3000; // this is  an env variable  the port will be set the production mood
 // app.listen(port);
 
 const myMovies = [
@@ -40,12 +42,15 @@ const myMovies = [
   },
   {
     id: 4,
-    type:
-      "my name is moaz and i am the best programer, and i am the best Developer"
+    type: "funny"
   }
 ];
 app.get("/", (req, res) => {
-  res.send(myMovies);
+  res.render("index", {
+    title: "express course",
+    message: "hello from jade (pug)"
+  });
+  startUpDebug("debug is working");
 });
 app.get("/api/myMovies/:id", (req, res) => {
   const movie = myMovies.find(movie => movie.id === parseInt(req.params.id));
@@ -105,13 +110,26 @@ function validate(movie) {
 //   app.use(morgan("tiny"));
 //   console.log("morgan enable "); // if i set the NODE_ENV to production with the export command morgan will not log
 // }
-// app.listen(port, () => `listening in port ${port}`);
+app.listen(port, () => `listening in port ${port}`);
 
 // configuration and env: i should write different configuration for each env and over writing according to the env that is running.
 // there is rc npm for  managing config but also there is config which is a good package, i will go with config
-// config its and obj with get method so we just set the env and use the dot notation to access its props
+// config its an obj with get method so we just set the env and use the dot notation to access its props
 console.log(config.get("host.mail"));
 app.get("env");
 
 // sometime i want to set passwords for thr database or some other password. i donut store this type of info in the config files direct i set some variables env for those passwords. to that i create a file in the config folder with this name always:custom-environment-variable.json there i store the password property in the variable env
 console.log(config.get("mail.password"));
+
+///////////////// debug package is great one to debug my app:
+// this package is return a function we call this function passing the name of the space that i am working on it so : const startUpDebug = require(debug)(app:startup)
+// dbDebug = require(debug)(app:db)
+// then i will set the DEBUG env to the name same that i wish to debug, so in the command line export DEBUG=app:startup or export DEBUG=app:db if i want to check all the debug export DEBUG=*
+
+///////////////////////template engine////////////
+//the best one in my opinion is pug, npm i pug then i should set the view engine of the app tp pug =>
+// app.set("view engine","pug") the second set is default , where i should store my template:
+// app.set("views",./views) that is mean all the template must be stored in the view folder.
+// when i want to sent instead of send i use app.render("name of the file i want to send it,{title:"my app,message:"hello}")
+app.set("view engine", "pug");
+app.set("views", "./views");
