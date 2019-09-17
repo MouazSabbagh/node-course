@@ -264,3 +264,25 @@ const iterateSet = setIterator(mySet);
 console.log("Challenge 4", iterateSet.next()); // -> should log 'h'
 console.log(iterateSet.next()); // -> should log 'e'
 console.log(iterateSet.next()); // -> should log 'y'
+
+// GENERATOR THE MOST CRAZY AND BEAUTY DESIGN IN JS :
+
+function* createFlow() {
+  yield 4;
+  yield 9;
+  yield 100;
+}
+
+const returnNextEl = createFlow();
+const el1 = returnNextEl.next();
+const el2 = returnNextEl.next();
+const el3 = returnNextEl.next();
+console.log(el1.value, el2, el3);
+
+const arr900 = [1, 2, 3, 4];
+
+// how js Engine read the code from line 270 => 280 lines
+// in the global memory js engine store the function definition of createFlow
+// line 276 in the global memory js engine store the constant returnNextEl assign it to GLOBAL GENERATOR OBJECT WITH PROPERTY next which is a method.
+//nwe hit the line 277 and the magic just start
+console.log("line 288", arr900[Symbol.iterator]().next().value); // this is the magic
